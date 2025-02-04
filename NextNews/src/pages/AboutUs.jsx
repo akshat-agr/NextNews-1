@@ -5,7 +5,7 @@ const teamMembers = [
     id: 1,
     name: "Akshat Agarwal",
     position: "AI Engineer",
-    image: "https://via.placeholder.com/80", // Replace with actual image URLs
+    image: "https://www.google.com/imgres?q=single%20boy%20emoji&imgurl=https%3A%2F%2Fimgproxy.attic.sh%2Funsafe%2Frs%3Afit%3A540%3A540%3A1%3A1%2Ft%3A1%3AFF00FF%3Afalse%3Afalse%2FaHR0cHM6Ly9hdHRp%2FYy5zaC9pOTV5OTNq%2FYjAxeTJyODZpeGZ0%2FcDg3MDQyY3Nr.webp&imgrefurl=https%3A%2F%2Femojis.sh%2Femoji%2Fa-single-boy-L7EFGc9R04&docid=lUGVWzQXhV6wUM&tbnid=MZAldcLPUmGFSM&vet=12ahUKEwi-l4_n5KqLAxUp-TgGHSlEAG8QM3oECBgQAA..i&w=540&h=540&hcb=2&ved=2ahUKEwi-l4_n5KqLAxUp-TgGHSlEAG8QM3oECBgQAA", // Replace with actual image URLs
   },
   {
     id: 2,

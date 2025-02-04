@@ -231,6 +231,50 @@ def summarize_news():
         logger.error(f"Error in summarize_news: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/ask_question', methods=['POST'])
+def ask_question():
+    try:
+        # Get the question from the JSON body
+        data = request.get_json()
+        question = data.get('question')
+        
+        if not question:
+            return jsonify({"error": "No question provided"}), 400
+
+        # Load articles data
+        if not os.path.exists("scraped_page_data.json"):
+            return jsonify({"error": "No article data available. Please scrape news first."}), 404
+
+        with open("scraped_page_data.json", 'r', encoding='utf-8') as file:
+            articles_data = json.load(file)
+        
+        # Combine article content for context
+        context = "\n\n".join([
+            f"Article: {article['title']}\n{article['content'][:1000]}" 
+            for article in articles_data
+        ])
+        
+        prompt = f"""Based on the following news articles:
+
+{context}
+
+Please answer this question: {question}
+
+Provide a detailed answer for the question based only on the information contained in these articles.
+The output has to mimic the actual response of a news anchor and should directly start with the news article."""
+        
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+        
+        return jsonify({
+            "question": question,
+            "answer": response.text
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/generate_voice')
 def generate_voice():
     try:
@@ -255,6 +299,59 @@ def generate_voice():
         
     except Exception as e:
         logger.error(f"Error in generate_voice: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+
+@app.route('/extract_news_thumbnails', methods=['POST'])
+def extract_news_thumbnails():
+    try:
+        # Get form data (you can update this as per your requirement)
+        gl = "in"  # Country code, e.g., 'in' for India
+        q = "trending"  # Search query, e.g., 'trending' or any other keyword
+        
+        app.logger.debug(f"Extracting news for query: {q}, region: {gl}")
+
+        # Search parameters for Google News API
+        params = {
+            "engine": "google_news",
+            "q": q,
+            "gl": gl,
+            "hl": "en",  # Language code
+            "api_key": os.getenv("SERPAPI_API_KEY")  # Make sure to set your API key
+        }
+
+        search = GoogleSearch(params)
+        results = search.get_dict()
+        news_results = results.get("news_results", [])
+
+        if not news_results:
+            app.logger.warning("No news results found")
+            return jsonify({"error": "No news results found"}), 404
+
+        app.logger.debug(f"Found {len(news_results)} news results")
+
+        # Extract top 5 news titles and thumbnails
+        result = []
+        for item in news_results[:5]:
+            title = item.get("title")
+            link = item.get("link")
+            thumbnail = item.get("thumbnail")
+
+            if title and link:
+                result.append({
+                    "title": title,
+                    "link": link,
+                    "thumbnail": thumbnail if thumbnail else "No thumbnail available"
+                })
+
+        app.logger.debug(f"Extracted {len(result)} articles")
+
+        # Return the result as JSON
+        return jsonify(result), 200
+
+    except Exception as e:
+        app.logger.error(f"Error in extract_news_thumbnails: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
