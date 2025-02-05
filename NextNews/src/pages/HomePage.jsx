@@ -1,13 +1,41 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Menu, Bell, User, Search, Play, Star } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, redirect } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Homepage = () => {
-  
   const [gl, setGl] = useState("");
   const [q, setQ] = useState("");
+
+  const [featuredNews, setFeaturedNews] = useState([]);
+  const navigate = useNavigate(); // Correct way to handle navigation in React Router
+
+  // Fetch Trending News from Flask
+  const fetchTrendingNews = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/extract_top_trending_news");
+      setFeaturedNews(response.data);
+      console.log(response)
+    } catch (error) {
+      console.error("Error fetching trending news:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrendingNews();
+  }, []);
+
+  // Search Handler
+  const handleSearch = async () => {
+    try {
+      const response = await axios.post("http://localhost:5000/scrape", { gl, q });
+      window.scrollTo(0, document.body.scrollHeight);
+      console.log(response);
+    } catch (error) {
+      console.error("Error fetching news:", error);
+    }
+  };
 
   const newsCategories = [
     { name: "Politics", count: "24" },
@@ -15,34 +43,18 @@ const Homepage = () => {
     { name: "Entertainment", count: "15" },
     { name: "Technology", count: "20" },
   ];
-  const handleSearch = async () => {
-    try {
-      const response = await axios.post("http://localhost:5000/scrape", { gl, q });
-      console.log(response);
-    } catch (error) {
-      console.error("Error fetching news:", error);
-    }
-  };
-  const featuredNews = [
-    {
-      title: "Major Tech Breakthrough in AI Development",
-      source: "TechDaily",
-      rating: "4.8",
-      time: "2h ago",
-    },
-    {
-      title: "Global Summit Addresses Climate Change",
-      source: "WorldNews",
-      rating: "4.9",
-      time: "3h ago",
-    },
-  ];
 
   return (
-    <div className="min-h-screen bg-[#1E1B4B]">
-     
+    <div className="min-h-screen bg-[#1A1A1A]">
+      {/* Search Inputs */}
+      <div className="p-6 max-w-3xl mx-auto text-center">
+        <h1 className="text-3xl font-bold mb-4">AI News Scraper</h1>
+        <p className="text-white/70 mb-6">
+          Get the latest news by entering a country code and a search query.
+        </p>
+</div>
       <div className="p-4">
-      <div className="relative max-w-2xl mx-auto">
+        <div className="relative max-w-2xl mx-auto">
           <input
             type="text"
             placeholder="Country code (gl)..."
@@ -65,55 +77,54 @@ const Homepage = () => {
           </button>
           <Search className="absolute left-3 top-3 text-white/60" />
         </div>
-
-        <Link to="/demo/anchor">
-        <button className="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl">
-          Anchor
-        </button>
-      </Link>
-
-
       </div>
+
+      {/* Categories Section */}
       <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
         {newsCategories.map((category) => (
-          <div
-            key={category.name}
-            className="bg-[#3B0764] p-4 rounded-lg text-white"
-          >
+          <div key={category.name} className="bg-[#3B0764] p-4 rounded-lg text-white">
             <h3 className="font-bold">{category.name}</h3>
             <p className="text-sm text-white/60">{category.count} stories</p>
           </div>
         ))}
       </div>
+
+      {/* Featured News Section */}
       <div className="p-4 max-w-4xl mx-auto">
         <h2 className="text-white text-xl font-bold mb-4">Featured Stories</h2>
         <div className="space-y-4">
-          {featuredNews.map((news) => (
-            <div
-              key={news.title}
-              className="bg-[#3B0764] p-4 rounded-lg text-white"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-bold mb-2">{news.title}</h3>
-                  <p className="text-sm text-white/60">
-                    {news.source} • {news.time}
-                  </p>
-                </div>
-                <div className="flex items-center bg-white/10 px-2 py-1 rounded">
-                  <Star className="w-4 h-4 text-yellow-400" />
-                  <span className="ml-1 text-sm">{news.rating}</span>
-                </div>
-              </div>
-            </div>
-          ))}
+  {featuredNews.length > 0 ? (
+    featuredNews.map((news, index) => (
+      <Link key={index} to={`/news/${index}`} state={{ news }}>
+        <div className="bg-[#3B0764] p-4 rounded-lg text-white flex cursor-pointer hover:bg-[#5B2A89] transition">
+          {/* Image */}
+                <img src={news.thumbnail} alt={news.title} className="w-24 h-24 object-cover rounded-lg mr-4" />
+          {/* News Content */}
+          <div className="flex-1">
+            <h3 className="font-bold mb-2">{news.title}</h3>
+          </div>
         </div>
-      </div>
-      <Link to="/">
-        <button className="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl">
-          Go Back
-        </button>
       </Link>
+    ))
+  ) : (
+    <p className="text-white text-center">Loading news...</p>
+  )}
+</div>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-center space-x-4 mt-6">
+        <Link to="/demo/anchor">
+          <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl">
+            Anchor
+          </button>
+        </Link>
+        <Link to="/">
+          <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl">
+            Go Back
+          </button>
+        </Link>
+      </div>
     </div>
   );
 };

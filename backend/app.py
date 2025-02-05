@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, jsonify
 from flask_cors import CORS  # Import CORS
-
+from elevenlabs.client import ElevenLabs
 import json
 import os
 import requests
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 GENAI_API_KEY = "AIzaSyDObieTwAqx4f7dAuR4vKAXDcZOargmVSw"
-SERPAPI_API_KEY = "c3550daff1993dfb2163f83161c9f284d9fb12f5fe20d0a1c9451fd9f4e44608"
+SERPAPI_API_KEY = "6565b5b63009879263438da3f4ee3f56e88bf1b1aa90c8a19ce03310294452d4"
 genai.configure(api_key=GENAI_API_KEY)
 
 @app.route('/')
@@ -277,6 +277,8 @@ The output has to mimic the actual response of a news anchor and should directly
 
 @app.route('/generate_voice')
 def generate_voice():
+    ELEVEN_API_KEY = "sk_c20de09377a45f62a77695e6a635eb375da84bd460e81844"
+
     try:
         if not os.path.exists("news_summary.txt"):
             logger.error("Summary file not found")
@@ -288,19 +290,32 @@ def generate_voice():
         if not text:
             logger.error("Summary file is empty")
             return jsonify({"error": "The summary file is empty"}), 400
-            
-        logger.debug("Generating speech from summary")
-        tts = gTTS(text=text[:3000], lang="en", slow=False)  # Limit text length for voice generation
+
+        logger.debug("Generating speech from summary using ElevenLabs")
+
+        # Initialize ElevenLabs client
+        client = ElevenLabs(api_key=ELEVEN_API_KEY)
+
+        # Convert text to speech
+        audio_generator = client.text_to_speech.convert(
+            text=text[:3000],  # Limit text length for voice generation
+            voice_id="JBFqnCBsd6RMkjVDRZzb",
+            model_id="eleven_multilingual_v2",
+            output_format="mp3_44100_128",
+        )
+
+        # Save the generated audio
         output_file = "output.mp3"
-        tts.save(output_file)
-        
+        with open(output_file, "wb") as audio_file:
+            for chunk in audio_generator:
+                audio_file.write(chunk)
+
         logger.debug(f"Successfully saved speech to {output_file}")
         return jsonify({"message": f"Speech generated and saved as {output_file}"})
         
     except Exception as e:
         logger.error(f"Error in generate_voice: {str(e)}")
         return jsonify({"error": str(e)}), 500
-
 
 
 @app.route('/extract_news_thumbnails', methods=['POST'])
@@ -318,7 +333,7 @@ def extract_news_thumbnails():
             "q": q,
             "gl": gl,
             "hl": "en",  # Language code
-            "api_key": os.getenv("SERPAPI_API_KEY")  # Make sure to set your API key
+            "api_key": "6565b5b63009879263438da3f4ee3f56e88bf1b1aa90c8a19ce03310294452d4"  # Make sure to set your API key
         }
 
         search = GoogleSearch(params)
@@ -354,5 +369,69 @@ def extract_news_thumbnails():
         app.logger.error(f"Error in extract_news_thumbnails: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/extract_top_trending_news', methods=['GET'])
+def extract_top_trending_news():
+    try:
+        gl = "in"  # Country code, e.g., 'in' for India
+        q = "latest"  # Search query, e.g., 'trending' or any other keyword
+        
+        logger.debug(f"Extracting top 5 trending news for query: {q}, region: {gl}")
+
+        # Search parameters for Google News API
+        params = {
+            "engine": "google_news",
+            "q": q,
+            "gl": gl,
+            "hl": "en",  # Language code
+            "api_key": SERPAPI_API_KEY  # Ensure you are using the correct API key
+        }
+
+        search = GoogleSearch(params)
+        results = search.get_dict()
+        news_results = results.get("news_results", [])
+
+        if not news_results:
+            logger.warning("No news results found")
+            return jsonify({"error": "No news results found"}), 404
+
+        logger.debug(f"Found {len(news_results)} news results")
+
+        # Extract top 5 news titles and thumbnails
+        result = []
+        for item in news_results[:15]:
+            title = item.get("title")
+            link = item.get("link")
+            thumbnail = item.get("thumbnail")
+
+            if title and link:
+                result.append({
+                    "title": title,
+                    "link": link,
+                    "thumbnail": thumbnail if thumbnail else "No thumbnail available"
+                })
+
+        logger.debug(f"Extracted {len(result)} articles")
+
+        # Save the extracted data to a JSON file
+        output_file_path = "top_trending_news.json"
+        with open(output_file_path, 'w', encoding='utf-8') as output_file:
+            json.dump(result, output_file, indent=4, ensure_ascii=False)
+
+        logger.debug(f"Saved trending news to {output_file_path}")
+        output_file_path = "top_trending_news.json"
+        with open(output_file_path, 'w', encoding='utf-8') as output_file:
+            json.dump(result, output_file, indent=4, ensure_ascii=False)
+
+        logger.debug(f"Saved trending news to {output_file_path}")
+        print(jsonify(result))
+        # Return the extracted news data
+        return jsonify(result), 200
+
+    except Exception as e:
+        logger.error(f"Error in extract_top_trending_news: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+# extract_top_trending_news()   
 if __name__ == "__main__":
     app.run(debug=True)
