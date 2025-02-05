@@ -103,7 +103,7 @@ const AnchorPage = () => {
             </button>
           </div>
 
-          <div className="bg-[#4A044E] rounded-lg overflow-hidden">
+          <div className="bg-[#4A044] rounded-lg overflow-hidden">
             <div className="relative">
               <div className="aspect-video bg-gray-800 flex items-center justify-center">
                 {activeMode === "video" ? (
@@ -111,9 +111,12 @@ const AnchorPage = () => {
                     <span className="text-white/50">AI Avatar</span>
                   </div>
                 ) : (
-                  <div className="w-64 h-32 bg-gray-700 rounded-lg flex items-center justify-center">
-                    <Volume2 className="w-16 h-16 text-white/50" />
-                  </div>
+                  <div className="w-64 h-32 bg-gray-700 rounded-lg flex flex-col items-center justify-center">
+  <audio controls className="w-full">
+    <source src="./output.mp3" type="audio/mpeg" />
+    Your browser does not support the audio element.
+  </audio>
+</div>
                 )}
               </div>
 
