@@ -55,7 +55,7 @@ const CustomizeAvatar = () => {
           <div className="bg-[#4A044E] rounded-lg p-6">
             <div className="relative">
               <div className="aspect-square bg-gray-700 rounded-lg flex items-center justify-center">
-                <Camera className="w-16 h-16 text-white/50" />
+                <div><img src="../../public/assests/PFPs/avat.jpeg" alt="Ai Avatar" /></div>
               </div>
               <button className="absolute top-2 right-2 bg-white/10 p-2 rounded-lg">
                 <Maximize2 className="w-4 h-4 text-white" />

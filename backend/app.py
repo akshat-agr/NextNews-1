@@ -396,19 +396,180 @@ def extract_top_trending_news():
 
         logger.debug(f"Found {len(news_results)} news results")
 
+
+        source_ratings = {
+            source.lower().strip(): rating for source, rating in {
+                "The Indian Express": 4.9,
+                "Hindustan Times": 4.83,
+                "The Hindu": 4.8,
+                "NDTV": 4.75,
+                "Business Standard": 4.74,
+                "The Times Of India": 4.74,
+                "The Economic Times": 4.64,
+                "MINT": 4.62,
+                "Outlook India": 4.53,
+                "India.Com": 4.31,
+                "Dainik Bhaskar": 4.1,
+                "The Hindu Business Line": 4.03,
+                "Aaj Tak": 3.99,
+                "India Today": 3.99,
+                "Daily News & Analysis": 3.97,
+                "Firstpost": 3.97,
+                "Zee News": 3.94,
+                "Dainik Jagran": 3.86,
+                "Sportskeeda": 3.86,
+                "Deccan Chronicle": 3.84,
+                "Scroll.In": 3.79,
+                "Times Now": 3.77,
+                "Financial Express": 3.74,
+                "Amar Ujala": 3.7,
+                "The Telegraph": 3.7,
+                "The Tribune": 3.7,
+                "Anandabazar Patrika": 3.67,
+                "Mathrubhumi": 3.67,
+                "Mid Day": 3.57,
+                "Gujarat Samachar": 3.52,
+                "NDTV (New Delhi Television)": 3.45,
+                "Lokmat": 3.42,
+                "The New Indian Express": 3.42,
+                "Malayala Manorama": 3.38,
+                "Hindustan": 3.36,
+                "The Navbharat Times": 3.36,
+                "India TV": 3.33,
+                "The Pioneer": 3.3,
+                "Eenadu": 3.27,
+                "The Quint": 3.27,
+                "The Statesman": 3.27,
+                "Outlook Business": 3.26,
+                "Free Press Journal": 3.19,
+                "Mykhel": 3.17,
+                "The Siasat Daily": 3.17,
+                "Divya Bhaskar": 3.14,
+                "Prabhat Khabar": 3.14,
+                "DD News": 3.08,
+                "ABP Live": 3.00,
+                "Daily Thanthi": 2.98,
+                "Vikatan Magazines": 2.95,
+                "ZEE5": 2.88,
+                "Kerala Kaumudi": 2.84,
+                "The Caravan": 2.82,
+                "Deccan Herald": 2.82,
+                "Nai Dunia": 2.82,
+                "Pudhari": 2.82,
+                "Business Insider India": 2.79,
+                "SAKAL": 2.79,
+                "Patrika": 2.72,
+                "Daily Excelsior": 2.7,
+                "Jansatta": 2.7,
+                "The Sandesh": 2.7,
+                "Pragativadi": 2.67,
+                "Andhra Jyothi": 2.63,
+                "Punjab Kesari": 2.63,
+                "Dinamalar": 2.61,
+                "PB-DD": 2.61,
+                "Loksatta": 2.59,
+                "Outlook Money": 2.59,
+                "Hari Bhoomi": 2.52,
+                "Maalai Malar": 2.49,
+                "Malayala Manorama (Onmanorama)": 2.49,
+                "Udayavani": 2.46,
+                "News18": 2.41,
+                "Rashtriya Sahara": 2.39,
+                "Sakshi": 2.39,
+                "Chitralekha": 2.24,
+                "Saamana": 2.22,
+                "Deepika": 2.2,
+                "Ajit": 2.18,
+                "Dinamani": 2.18,
+                "Lokmat Times": 2.14,
+                "Punjabi Tribune": 2.14,
+                "Vaartha": 2.14,
+                "Bombay Samachar Daily": 2.09,
+                "Deshabhimani": 2.09,
+                "Ei Samay": 2.09,
+                "Madhyamam": 2.02,
+                "Outlook Hindi": 2.00,
+                "Kumudam": 1.98,
+                "Prajasakti": 1.98,
+                "Bartaman": 1.94,
+                "Dinakaran": 1.92,
+                "Prajavani": 1.92,
+                "Aajkaal": 1.89,
+                "Dainik Tribune": 1.85,
+                "Reader’s Digest India": 1.83,
+                "Namasthe Telangana": 1.81,
+                "Dharitri": 1.79,
+                "Inquilab": 1.75,
+                "Punjabi Jagran": 1.75,
+                "Tarun Bharat": 1.7,
+                "IBC 24": 1.68,
+                "Sambad": 1.68,
+                "Sangbad Pratidin": 1.66,
+                "Kashmir Times": 1.61,
+                "Gujarati Mid Day": 1.57,
+                "The Maharashtra Times": 1.55,
+                "Andhra Prabha": 1.55,
+                "Gujarati Jagran": 1.53,
+                "The Hitavada": 1.53,
+                "DJ-Inext": 1.51,
+                "Mangalam Daily": 1.51,
+                "O Herald O": 1.49,
+                "Gomantak": 1.44,
+                "Gomantak Times": 1.41,
+                "Dainik Navajyoti": 1.37,
+                "Raj Express": 1.33,
+                "Suprabhaatham Daily": 1.31,
+                "Vijayavani": 1.29,
+                "Sanmarg": 1.26,
+                "First India News": 1.24,
+                "Asomiya Pratidin": 1.19,
+                "Navabharat": 1.14,
+                "The Samaja": 1.14,
+                "Zee Media Corporation": 1.14,
+                "Navarashtra": 1.12,
+                "Star Sports Asia": 1.11,
+                "Daily Hindi Milap": 1.06,
+                "DD India": 1.05,
+                "The Navhind Times": 1.05,
+                "Charhdikala Daily": 1.00,
+                "Aaj Samaj": 0.98,
+                "Pratidin Akhbar": 0.96,
+                "Dainik Sambad": 0.95,
+                "The Samaya": 0.92,
+                "Daily Deshonnati": 0.88,
+                "Janmabhoomi": 0.86,
+                "Khabar Fast": 0.86,
+                "Alive": 0.84,
+                "Daily Milap": 0.84,
+                "Dainik Rashtradoot": 0.84
+            }.items()
+        }
+
+
         # Extract top 5 news titles and thumbnails
         result = []
         for item in news_results[:15]:
             title = item.get("title")
             link = item.get("link")
             thumbnail = item.get("thumbnail")
+            source_info = item.get("source", {})
+            source_name = source_info.get("name", "Unknown Source")
+            normalized_source_name = source_name.lower().strip()
+            rating = source_ratings.get(normalized_source_name, "Rating not available")
 
-            if title and link:
-                result.append({
-                    "title": title,
-                    "link": link,
-                    "thumbnail": thumbnail if thumbnail else "No thumbnail available"
-                })
+            result.append({
+                "title": title,
+                "link": link,
+                "thumbnail": thumbnail,
+                "source": source_name,
+                "rating": rating
+            })
+            # if title and link:
+            #     result.append({
+            #         "title": title,
+            #         "link": link,
+            #         "thumbnail": thumbnail if thumbnail else "No thumbnail available"
+            #     })
 
         logger.debug(f"Extracted {len(result)} articles")
 

@@ -106,9 +106,9 @@ const AnchorPage = () => {
       <div className="max-w-6xl mx-auto p-4 flex gap-6">
         <div className="flex-1">
           <div className="bg-white/10 rounded-xl overflow-hidden shadow-lg relative" ref={videoRef}>
-            <div className="aspect-video bg-gray-900 flex items-center justify-center">
+            <div className="aspect-video bg-gray-00 flex items-center justify-center">
               <span className="text-white/50">
-                {activeMode === "video" ? "AI Avatar" : "Audio Mode"}
+                {activeMode === "video" ? <div><img src="../public/assests/PFPs/avat.jpeg" alt="Ai Avatar" /></div> : "Audio Mode"}
               </span>
             </div>
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/50 flex justify-between">

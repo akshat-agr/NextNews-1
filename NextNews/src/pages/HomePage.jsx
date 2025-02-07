@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Menu, Bell, User, Search, Play, Star } from "lucide-react";
+import { Menu, Bell, User, Search, Play, Star, StarHalf, StarOff } from "lucide-react";
 import { Link, redirect } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+// import { Star, StarHalf, StarOff } from "lucide-react";
 
 const Homepage = () => {
   const [gl, setGl] = useState("");
@@ -11,6 +12,27 @@ const Homepage = () => {
   const [featuredNews, setFeaturedNews] = useState([]);
   const navigate = useNavigate(); // Correct way to handle navigation in React Router
 
+  const renderStars = (rating) => {
+    if (!rating || rating === 0) {
+      return <span className="text-gray-400 text-sm">N/A</span>;
+    }
+  
+    const stars = [];
+    const maxStars = 5;
+  
+    for (let i = 1; i <= maxStars; i++) {
+      if (i <= rating) {
+        stars.push(<Star key={i} className="text-yellow-400 w-5 h-5" />);
+      } else if (i - 0.5 === rating) {
+        stars.push(<StarHalf key={i} className="text-yellow-400 w-5 h-5" />);
+      } else {
+        stars.push(<StarOff key={i} className="text-gray-400 w-5 h-5" />);
+      }
+    }
+  
+    return stars;
+  };
+  
   // Fetch Trending News from Flask
   const fetchTrendingNews = async () => {
     try {
@@ -103,6 +125,10 @@ const Homepage = () => {
           <div className="flex-1">
             <h3 className="font-bold mb-2">{news.title}</h3>
           </div>
+          <div className="flex items-center space-x-1">
+              {renderStars(news.rating)}
+              <span className="ml-2 text-gray-300 text-sm">({news.rating})</span>
+            </div>
         </div>
       </Link>
     ))
