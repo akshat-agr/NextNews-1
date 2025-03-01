@@ -4,9 +4,9 @@
 A comprehensive platform that leverages artificial intelligence to analyze, categorize, and deliver personalized news content. This repository contains both frontend and backend components for a modern news application that uses natural language processing to enhance the news consumption experience.
 
 ## Project Overview
-![NextNews Banner](path/to/banner-image.png)
-![NextNews Banner](path/to/banner-image.png)
-![NextNews Banner](path/to/banner-image.png)
+![NextNews Banner](g1.jpg)
+![NextNews Banner](g2.jpg)
+![NextNews Banner](g3.jpg)
 
 
 NextNews is designed to transform how users interact with news content by applying advanced AI techniques to:
