@@ -124,9 +124,7 @@ This project is licensed under the Apache 2.0 License - see the LICENSE file for
 - AI research community
 - Contributors and testers
 
-## Contact
 
-Repository Owner: [sa778888](https://github.com/sa778888)
 
 
 
